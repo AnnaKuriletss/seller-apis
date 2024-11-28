@@ -11,6 +11,23 @@ logger = logging.getLogger(__file__)
 
 
 def get_product_list(page, campaign_id, access_token):
+    """
+    Получает список товаров для заданной страницы из Яндекс Маркета.
+
+    Аргументы:
+    - page (str): Токен для текущей страницы данных.
+    - campaign_id (str): Идентификатор кампании в Яндекс Маркете.
+    - access_token (str): Токен доступа для авторизации.
+
+    Возвращает:
+    dict: Результаты запроса, включая список товаров и информацию о страницах.
+
+    Пример корректного исполнения:
+    get_product_list("page_token_123", "12345", "access_token_abc123")
+
+    Пример некорректного исполнения:
+    get_product_list("", "", "")  # Ошибка из-за отсутствия данных.
+    """
     endpoint_url = "https://api.partner.market.yandex.ru/"
     headers = {
         "Content-Type": "application/json",
@@ -30,6 +47,23 @@ def get_product_list(page, campaign_id, access_token):
 
 
 def update_stocks(stocks, campaign_id, access_token):
+    """
+    Обновляет данные об остатках товаров в Яндекс Маркете.
+
+    Аргументы:
+    - stocks (list): Список товаров с указанием остатков.
+    - campaign_id (str): Идентификатор кампании.
+    - access_token (str): Токен доступа для авторизации.
+
+    Возвращает:
+    dict: Ответ от сервера с подтверждением обновления.
+
+    Пример корректного исполнения:
+    update_stocks([{"sku": "123", "items": [{"count": 10, "type": "FIT"}]}], "12345", "access_token_abc123")
+
+    Пример некорректного исполнения:
+    update_stocks([], "", "")  # Ошибка из-за пустых данных.
+    """
     endpoint_url = "https://api.partner.market.yandex.ru/"
     headers = {
         "Content-Type": "application/json",
@@ -46,6 +80,23 @@ def update_stocks(stocks, campaign_id, access_token):
 
 
 def update_price(prices, campaign_id, access_token):
+    """
+    Обновляет цены товаров в Яндекс Маркете.
+
+    Аргументы:
+    - prices (list): Список товаров с информацией о ценах.
+    - campaign_id (str): Идентификатор кампании.
+    - access_token (str): Токен доступа для авторизации.
+
+    Возвращает:
+    dict: Ответ от сервера с подтверждением обновления.
+
+    Пример корректного исполнения:
+    update_price([{"id": "123", "price": {"value": 1000, "currencyId": "RUR"}}], "12345", "access_token_abc123")
+
+    Пример некорректного исполнения:
+    update_price([], "", "")  # Ошибка из-за отсутствия данных.
+    """
     endpoint_url = "https://api.partner.market.yandex.ru/"
     headers = {
         "Content-Type": "application/json",
@@ -62,7 +113,22 @@ def update_price(prices, campaign_id, access_token):
 
 
 def get_offer_ids(campaign_id, market_token):
-    """Получить артикулы товаров Яндекс маркета"""
+    """
+    Получить артикулы товаров Яндекс маркета.
+
+    Аргументы:
+    - campaign_id (str): Идентификатор кампании.
+    - market_token (str): Токен доступа для авторизации.
+
+    Возвращает:
+    list: Список SKU товаров.
+
+    Пример корректного исполнения:
+    get_offer_ids("12345", "market_token_abc123")
+
+    Пример некорректного исполнения:
+    get_offer_ids("", "")  # Ошибка из-за отсутствия идентификаторов.
+    """
     page = ""
     product_list = []
     while True:
@@ -78,6 +144,23 @@ def get_offer_ids(campaign_id, market_token):
 
 
 def create_stocks(watch_remnants, offer_ids, warehouse_id):
+    """
+    Формирует список остатков для товаров на складе.
+
+    Аргументы:
+    - watch_remnants (list): Список остатков товаров с их данными.
+    - offer_ids (list): Список SKU товаров.
+    - warehouse_id (str): Идентификатор склада.
+
+    Возвращает:
+    list: Список остатков для обновления.
+
+    Пример корректного исполнения:
+    create_stocks([{"Код": "123", "Количество": "10"}], ["123"], "warehouse_1")
+
+    Пример некорректного исполнения:
+    create_stocks([], [], "")  # Ошибка из-за отсутствия данных.
+    """
     # Уберем то, что не загружено в market
     stocks = list()
     date = str(datetime.datetime.utcnow().replace(microsecond=0).isoformat() + "Z")
@@ -123,6 +206,22 @@ def create_stocks(watch_remnants, offer_ids, warehouse_id):
 
 
 def create_prices(watch_remnants, offer_ids):
+    """
+    Создаёт список объектов с ценами товаров.
+
+    Аргументы:
+    - watch_remnants (list): Список остатков товаров с их ценами.
+    - offer_ids (list): Список SKU товаров.
+
+    Возвращает:
+    list: Список цен для обновления.
+
+    Пример корректного исполнения:
+    create_prices([{"Код": "123", "Цена": "5000"}], ["123"])
+
+    Пример некорректного исполнения:
+    create_prices([], [])  # Ошибка из-за пустого списка данных.
+    """
     prices = []
     for watch in watch_remnants:
         if str(watch.get("Код")) in offer_ids:
@@ -143,6 +242,23 @@ def create_prices(watch_remnants, offer_ids):
 
 
 async def upload_prices(watch_remnants, campaign_id, market_token):
+    """
+    Загрузка цен товаров в Яндекс Маркет.
+
+    Аргументы:
+    - watch_remnants (list): Список остатков товаров с ценами.
+    - campaign_id (str): Идентификатор кампании.
+    - market_token (str): Токен доступа для авторизации.
+
+    Возвращает:
+    list: Загруженные данные о ценах.
+
+    Пример корректного исполнения:
+    await upload_prices([{"Код": "123", "Цена": "5000"}], "12345", "market_token_abc123")
+
+    Пример некорректного исполнения:
+    await upload_prices([], "", "")  # Ошибка из-за отсутствия данных.
+    """
     offer_ids = get_offer_ids(campaign_id, market_token)
     prices = create_prices(watch_remnants, offer_ids)
     for some_prices in list(divide(prices, 500)):
@@ -151,6 +267,24 @@ async def upload_prices(watch_remnants, campaign_id, market_token):
 
 
 async def upload_stocks(watch_remnants, campaign_id, market_token, warehouse_id):
+    """
+    Загрузка остатков товаров на склад в Яндекс Маркет.
+
+    Аргументы:
+    - watch_remnants (list): Список остатков товаров.
+    - campaign_id (str): Идентификатор кампании.
+    - market_token (str): Токен доступа для авторизации.
+    - warehouse_id (str): Идентификатор склада.
+
+    Возвращает:
+    tuple: Два списка — остатки, которые не равны нулю, и все остатки.
+
+    Пример корректного исполнения:
+    await upload_stocks([{"Код": "123", "Количество": "10"}], "12345", "market_token_abc123", "warehouse_1")
+
+    Пример некорректного исполнения:
+    await upload_stocks([], "", "", "")  # Ошибка из-за отсутствия данных.
+    """
     offer_ids = get_offer_ids(campaign_id, market_token)
     stocks = create_stocks(watch_remnants, offer_ids, warehouse_id)
     for some_stock in list(divide(stocks, 2000)):
